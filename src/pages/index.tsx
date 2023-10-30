@@ -2,7 +2,7 @@ const HomePage = () => {
   return null;
 };
 
-export const getServerSideProps = async () => {
+export const getServerSideProps = () => {
   return {
     redirect: {
       destination: "/login",

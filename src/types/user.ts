@@ -4,7 +4,7 @@ export interface User {
   firstname?: string;
   lastname?: string;
   password: string;
-  image?: String;
+  image?: string;
 }
 
 export interface LoginResponse {
@@ -18,6 +18,6 @@ export type UserUpdateInput = {
   email: string;
   confirmEmail?: string;
   password?: string;
-  image?: String;
+  image?: string;
   confirmPassword?: string;
 };

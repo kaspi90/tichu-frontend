@@ -9,6 +9,10 @@ import uploadService from "@/services/upload.services";
 
 const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || "";
 
+interface UploadResponse {
+  image: string;
+}
+
 export const SettingsOverview = () => {
   const [uploadedImage, setUploadedImage] = useState<string | null>(null);
 
@@ -32,10 +36,9 @@ export const SettingsOverview = () => {
     const file = e.target.files?.[0];
     if (file && currentUser?.id) {
       // Check if currentUser.id is defined
-      uploadService.uploadFile(file).then((response) => {
-        // Assuming the backend response contains the updated user data
+      void uploadService.uploadFile(file).then((response: UploadResponse) => {
         setUploadedImage(response.image);
-        setCurrentUser(response); // Update the currentUser with the new data
+        setCurrentUser(response as unknown as User); // Ensure that the response is of type User
       });
     } else {
       console.error("currentUser or currentUser.id is undefined");
@@ -59,7 +62,7 @@ export const SettingsOverview = () => {
       }
     };
 
-    fetchUser();
+    void fetchUser();
   }, []);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -67,7 +70,7 @@ export const SettingsOverview = () => {
     setFormData((prevData) => ({ ...prevData, [name]: value }));
   };
 
-  const handleSave = async () => {
+  const handleSave = () => {
     try {
       // Validate the password first, even if it is not mandatory
       if (!isValidPassword()) return;
@@ -91,7 +94,7 @@ export const SettingsOverview = () => {
 
       // Pass both the userId and the cleaned-up formData to updateUserdata
       console.log(submitData);
-      await UserService.updateUserdata(currentUser.id, cleanedSubmitData);
+      UserService.updateUserdata(currentUser.id, cleanedSubmitData);
 
       // Optionally, update the current user state or refetch the updated data
       setCurrentUser((prevUser) => {
@@ -177,11 +180,7 @@ export const SettingsOverview = () => {
         >
           {uploadedImage || currentUser?.image ? (
             <img
-              src={
-                uploadedImage
-                  ? backendUrl + uploadedImage
-                  : backendUrl + currentUser?.image
-              }
+              src={backendUrl + (uploadedImage || currentUser?.image || "")}
               alt="Profile Picture"
               className={classNames(
                 "w-[80px]",

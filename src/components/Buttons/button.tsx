@@ -1,5 +1,6 @@
-import React, { ButtonHTMLAttributes, FC, PropsWithChildren } from "react";
+import React from "react";
 import classNames from "classnames";
+import type { ButtonHTMLAttributes, FC, PropsWithChildren } from "react";
 
 type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
   className?: string;

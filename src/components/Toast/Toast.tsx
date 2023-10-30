@@ -22,16 +22,25 @@ const Toast: React.FC<ToastProps> = ({
   setPointsSumTeam1,
   setPointsSumTeam2,
 }) => {
-  const handleClick = (game: Game) => {
-    game && createGame(game);
-    setPointsSumTeam1(0);
-    setPointsSumTeam2(0);
-    onClose();
+  const handleClick = async (game: Game) => {
+    try {
+      if (game) {
+        await createGame(game);
+        setPointsSumTeam1(0);
+        setPointsSumTeam2(0);
+      }
+    } catch (error) {
+      console.error("Failed to create game:", error);
+      // Handle the error properly here, e.g., show a toast notification to the user
+    } finally {
+      onClose();
+    }
   };
+
   return (
     <div
       className={`fixed left-0 top-0 z-50 flex h-full w-full items-center justify-center ${
-        !message && "hidden"
+        message ? "" : "hidden"
       }`}
     >
       <div
@@ -54,7 +63,7 @@ const Toast: React.FC<ToastProps> = ({
             </button>
           )}
           <button
-            onClick={() => game && handleClick(game)}
+            onClick={() => game && void handleClick(game)}
             className="rounded bg-gray-600 px-4 py-2 text-white"
           >
             Save result

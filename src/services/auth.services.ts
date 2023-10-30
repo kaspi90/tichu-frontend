@@ -1,17 +1,19 @@
 import axios, { AxiosResponse } from "axios";
 import { LoginResponse, User } from "@/types/user";
 
-const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
+const backendUrl =
+  process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:4000/";
 
 const login = async (
   email: string,
   password: string
 ): Promise<LoginResponse> => {
   try {
-    const response: AxiosResponse<LoginResponse> = await axios.post(
-      backendUrl + "auth/login",
-      { email, password }
-    );
+    const url = `${String(backendUrl)}auth/login`; // Convert backendUrl to string to satisfy TypeScript
+    const response: AxiosResponse<LoginResponse> = await axios.post(url, {
+      email,
+      password,
+    });
 
     if (response.data.token) {
       localStorage.setItem("token", response.data.token);
@@ -22,12 +24,18 @@ const login = async (
     return response.data;
   } catch (error) {
     console.error("Login error:", error);
-    throw error; // propagate the error so that the calling function is aware of the failure
+    throw error;
   }
 };
 
-const logout = (): void => {
-  localStorage.removeItem("token");
+const logout = (): Promise<boolean> => {
+  try {
+    localStorage.removeItem("token");
+    return Promise.resolve(true);
+  } catch (error) {
+    console.error("Logout failed:", error);
+    return Promise.resolve(false);
+  }
 };
 
 const getCurrentUser = async (): Promise<User | null> => {
@@ -38,14 +46,12 @@ const getCurrentUser = async (): Promise<User | null> => {
   }
 
   try {
-    const response: AxiosResponse<User> = await axios.get(
-      backendUrl + "users/me", // Assuming "/users/me" endpoint returns data of the authenticated user.
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      }
-    );
+    const url = `${String(backendUrl)}users/me`; // Convert backendUrl to string to satisfy TypeScript
+    const response: AxiosResponse<User> = await axios.get(url, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
 
     return response.data;
   } catch (err) {

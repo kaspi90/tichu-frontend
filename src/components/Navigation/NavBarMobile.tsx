@@ -38,30 +38,38 @@ export const NavBarMobile = (): JSX.Element => {
 
   useEffect(() => {
     const fetchUser = async () => {
-      const user = await authServices.getCurrentUser();
-      if (user) {
-        setCurrentUser(user);
-
-        setFormData({
-          firstname: user.firstname || "",
-          lastname: user.lastname || "",
-          email: user.email || "",
-          confirmEmail: user.email || "",
-          password: "",
-          confirmPassword: "",
-        });
+      try {
+        const user = await authServices.getCurrentUser();
+        if (user) {
+          setCurrentUser(user);
+          setFormData({
+            firstname: user.firstname || "",
+            lastname: user.lastname || "",
+            email: user.email || "",
+            confirmEmail: user.email || "",
+            password: "",
+            confirmPassword: "",
+          });
+        }
+      } catch (error) {
+        console.error("An error occurred while fetching the user:", error);
       }
     };
 
-    fetchUser();
+    void fetchUser();
   }, []);
 
   const router = useRouter();
 
   const handleLogout = async () => {
-    authServices.logout();
-    router.push("/login");
+    try {
+      await authServices.logout();
+      void router.push("/login");
+    } catch (error) {
+      console.error("An error occurred during logout:", error);
+    }
   };
+
   return (
     <div
       className={classNames(
@@ -73,7 +81,7 @@ export const NavBarMobile = (): JSX.Element => {
         <div className={classNames("flex", "items-center", "gap-4")}>
           {currentUser?.image ? (
             <img
-              src={backendUrl + currentUser?.image}
+              src={backendUrl + (currentUser?.image || "")}
               alt="Profile Picture"
               className={classNames(
                 "rounded-full",
@@ -154,9 +162,9 @@ export const NavBarMobile = (): JSX.Element => {
             "hover:bg-rose-900",
             "rounded-xl",
             "text-white",
-            "cursor-pointer" // This ensures the div looks clickable
+            "cursor-pointer"
           )}
-          onClick={handleLogout}
+          onClick={() => handleLogout}
         >
           <Image src="/img/logout.svg" width={21} height={21} alt="" /> Log Out
         </div>

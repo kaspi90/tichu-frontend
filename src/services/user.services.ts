@@ -1,22 +1,13 @@
 import { User, UserUpdateInput } from "@/types/user";
-import api from "./api.services";
 import axios from "axios";
 
-const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
+const backendUrl =
+  process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:3000/"; // Default URL
 
-// const userData = async (id: number): Promise<User> => {
-//     const { data: res } = await api.get<User>("/user/" + JSON.stringify(id), {
-//       headers: {
-//         Authorization: `Bearer ${userToken}`,
-//       },
-//     });
-
-//     return res;
-//   };
-
-// function getTokens() {
-//     throw new Error("Function not implemented.");
-// }
+interface RegisterResponse {
+  token: string;
+  // other properties...
+}
 
 const getUser = () => {
   axios
@@ -31,7 +22,7 @@ const getUser = () => {
 
 const register = (data: User) => {
   axios
-    .post(backendUrl + "users", data)
+    .post<RegisterResponse>(backendUrl + "users", data)
     .then((response) => {
       console.log(response.data);
       localStorage.setItem("token", response.data.token);
@@ -42,7 +33,7 @@ const register = (data: User) => {
     });
 };
 
-const updateUserdata = (userId: any, data: UserUpdateInput) => {
+const updateUserdata = (userId: number, data: UserUpdateInput) => {
   axios
     .put(backendUrl + `users/${userId}`, data)
     .then((response) => {

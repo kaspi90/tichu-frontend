@@ -13,7 +13,7 @@ export const HistoryOverview = () => {
       setAllGames(games);
     };
 
-    fetchAllGames();
+    void fetchAllGames();
   }, []);
 
   console.log(allGames);

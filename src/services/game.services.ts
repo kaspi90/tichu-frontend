@@ -2,7 +2,8 @@
 import { Game, GameResult } from "@/types/game";
 import axios from "axios";
 
-const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
+const backendUrl =
+  process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:4000";
 
 const API_BASE_URL = backendUrl + "games"; // Assuming your NestJS API is running on this URL
 
@@ -19,9 +20,10 @@ export const getGameById = async (id: number) => {
 };
 
 export const getMyGames = async (): Promise<GameResult[]> => {
+  const token = localStorage.getItem("token");
   const config = {
     headers: {
-      Authorization: `Bearer ${localStorage.getItem("token")}`,
+      Authorization: `Bearer ${token ? token : "default-token"}`,
     },
   };
 

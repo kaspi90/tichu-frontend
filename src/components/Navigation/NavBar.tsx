@@ -25,8 +25,8 @@ export const Box = (): JSX.Element => {
   const router = useRouter();
 
   const handleLogout = async () => {
-    authServices.logout();
-    router.push("/login");
+    await authServices.logout();
+    void router.push("/login");
   };
   return (
     <div
@@ -95,7 +95,7 @@ export const Box = (): JSX.Element => {
           "text-white",
           "cursor-pointer" // This ensures the div looks clickable
         )}
-        onClick={handleLogout}
+        onClick={() => handleLogout}
       >
         <Image src="/img/logout.svg" width={21} height={21} alt="" /> Log Out
       </div>

@@ -35,7 +35,7 @@ export const TopBar = () => {
       }
     };
 
-    fetchUser();
+    void fetchUser();
   }, []);
   return (
     <div

@@ -1,6 +1,5 @@
 import React, { ChangeEvent, useEffect, useState } from "react";
-import Image from "next/image";
-import Link from "next/link";
+
 import classNames from "classnames";
 import InputTeam from "../Forms/InputForms/InputTeam";
 import InputNumber from "../Forms/InputForms/InputNumber";
@@ -8,7 +7,6 @@ import InputCheckbox from "../Forms/InputForms/InputCheckbox";
 import { calculatePoints } from "@/utils/calcPoints";
 import { Game } from "@/types/game";
 import authServices from "@/services/auth.services";
-import { createGame } from "@/services/game.services";
 import Toast from "../Toast/Toast";
 
 export const CounterOverview = () => {
@@ -69,7 +67,7 @@ export const CounterOverview = () => {
       }
     };
 
-    fetchCurrentUserAndSetGame();
+    void fetchCurrentUserAndSetGame();
   }, [pointsSumTeam1, pointsSumTeam2]);
 
   const [activeDoubleWinToggle, setActiveDoubleWinToggle] =

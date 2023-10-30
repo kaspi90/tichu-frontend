@@ -26,16 +26,62 @@ const LoginComponent: FC<LoginProps> = ({ setStep }) => {
     });
   };
 
-  const handleLogin = async () => {
-    try {
-      const response = await authServices.login(
-        formState.email,
-        formState.password
-      );
-      if (response.token) {
-        router.push("/dashboard");
-      }
-    } catch (error) {}
+  // const handleLogin = async () => {
+  //   try {
+  //     const response = await authServices.login(
+  //       formState.email,
+  //       formState.password
+  //     );
+  //     if (response.token) {
+  //       void router.push("/dashboard");
+  //     }
+  //   } catch (error) {}
+  // };
+
+  // const handleLogin = async () => {
+  //   try {
+  //     const response = await authServices.login(
+  //       formState.email,
+  //       formState.password
+  //     );
+  //     if (response.token) {
+  //       // Since we're not awaiting this Promise, the ESLint rule should not complain
+  //       router.push("/dashboard");
+  //     }
+  //   } catch (error) {
+  //     console.error("Login error:", error);
+  //     // Handle the error, e.g., show an error message to the user
+  //   }
+  // };
+
+  // const handleLogin = async () => {
+  //   try {
+  //     const response = await authServices.login(
+  //       formState.email,
+  //       formState.password
+  //     );
+  //     if (response.token) {
+  //       // Explicitly ignore the Promise returned by router.push
+  //       void router.push("/dashboard");
+  //     }
+  //   } catch (error) {
+  //     console.error("Login error:", error);
+  //     // Handle the error, e.g., show an error message to the user
+  //   }
+  // };
+
+  const handleLogin = () => {
+    authServices
+      .login(formState.email, formState.password)
+      .then((response) => {
+        if (response.token) {
+          void router.push("/dashboard");
+        }
+      })
+      .catch((error) => {
+        console.error("Login error:", error);
+        // Handle the error, e.g., show an error message to the user
+      });
   };
 
   return (
@@ -89,11 +135,7 @@ const LoginComponent: FC<LoginProps> = ({ setStep }) => {
             onChange={handleChange}
           />
         </div>
-        <div className={classNames("mb-3", "flex", "justify-end")}>
-          {/* <a className={classNames("text-sm", "cursor-pointer", "py-3")}>
-            Forgot your password?
-          </a> */}
-        </div>
+        <div className={classNames("mb-3", "flex", "justify-end")}></div>
         <Button className={classNames("mb-7")} onClick={handleLogin}>
           Sign In
         </Button>
