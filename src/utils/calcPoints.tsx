@@ -1,15 +1,12 @@
-import React from "react";
-import { FC } from "react";
-
-interface InputCalculateProps {
-  pointsTeam1: string | number;
-  setPointsTeam1: (value: string | number) => void;
-  pointsSumTeam1: string | number;
-  pointsSumTeam2: string | number;
-  pointsTeam2: string | number;
-  setPointsTeam2: (value: string | number) => void;
-  setPointsSumTeam1: (value: string | number) => void;
-  setPointsSumTeam2: (value: string | number) => void;
+type InputCalculateProps = {
+  pointsTeam1: number;
+  setPointsTeam1: (value: number) => void;
+  pointsSumTeam1: number;
+  pointsSumTeam2: number;
+  pointsTeam2: number;
+  setPointsTeam2: (value: number) => void;
+  setPointsSumTeam1: (value: number) => void;
+  setPointsSumTeam2: (value: number) => void;
   className?: string;
   activeToggle?: ToggleName | null;
   activeDoubleWinToggle?: ToggleDoublewin | null;
@@ -17,7 +14,7 @@ interface InputCalculateProps {
   failedTichu2: boolean;
   failedGrandTichu3: boolean;
   failedGrandTichu4: boolean;
-}
+};
 
 type ToggleName =
   | "successful-tichu-1"
@@ -47,8 +44,8 @@ export const calculatePoints = ({
   pointsSumTeam1,
   pointsSumTeam2,
 }: InputCalculateProps): void => {
-  let team1Points = typeof pointsTeam1 === "number" ? pointsTeam1 : 0;
-  let team2Points = typeof pointsTeam2 === "number" ? pointsTeam2 : 0;
+  let team1Points = pointsTeam1;
+  let team2Points = pointsTeam2;
 
   switch (activeToggle) {
     case "successful-tichu-1":
@@ -62,18 +59,6 @@ export const calculatePoints = ({
       break;
     case "successful-grand-tichu-2":
       team2Points += 200;
-      break;
-    case "failed-tichu-1":
-      team1Points -= 100;
-      break;
-    case "failed-tichu-2":
-      team2Points -= 100;
-      break;
-    case "failed-grand-tichu-1":
-      team1Points -= 200;
-      break;
-    case "failed-grand-tichu-2":
-      team2Points -= 200;
       break;
   }
 
@@ -102,8 +87,8 @@ export const calculatePoints = ({
     team2Points -= 200;
   }
 
-  setPointsSumTeam1(Number(pointsSumTeam1) + team1Points);
-  setPointsSumTeam2(Number(pointsSumTeam2) + team2Points);
+  setPointsSumTeam1(pointsSumTeam1 + team1Points);
+  setPointsSumTeam2(pointsSumTeam2 + team2Points);
   setPointsTeam1(0);
   setPointsTeam2(0);
 };

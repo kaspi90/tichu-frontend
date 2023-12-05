@@ -1,10 +1,9 @@
 import classNames from "classnames";
+import { useState, useEffect, FC } from "react";
+import { getMyGames } from "@/services/game.services";
+import type { GameResult } from "@/types/game";
 
-import { getAllGames, getMyGames } from "@/services/game.services";
-import { Game, GameResult } from "@/types/game";
-import { useState, useEffect } from "react";
-
-export const HistoryOverview = () => {
+const HistoryOverview: FC = () => {
   const [allGames, setAllGames] = useState<GameResult[] | null>(null);
 
   useEffect(() => {
@@ -16,19 +15,17 @@ export const HistoryOverview = () => {
     void fetchAllGames();
   }, []);
 
-  console.log(allGames);
   return (
     <div
       className={classNames(
         "bg-white",
         "h-fit",
-
         "w-[90%]",
         "rounded-xl",
         "mx-auto"
       )}
     >
-      <div className="p-4">
+      <div className={classNames("p-4")}>
         <div
           className={classNames(
             "border",
@@ -46,7 +43,6 @@ export const HistoryOverview = () => {
           <div className={classNames("grid grid-cols-3 gap-4", "p-4")}>
             <div className={classNames("text-center", "font-bold")}>Team 1</div>
             <div className={classNames("text-center", "font-bold")}></div>
-
             <div className={classNames("text-center", "font-bold")}>Team 2</div>
           </div>
           {allGames &&
@@ -74,7 +70,7 @@ export const HistoryOverview = () => {
                       "border",
                       "bg-green-700",
                       "text-white",
-                      "md:w-[120px]",
+                      "md:w-30",
                       "w-fit",
                       "px-2",
                       "md:px-0",
@@ -85,13 +81,11 @@ export const HistoryOverview = () => {
                         : "bg-green-700"
                     )}
                   >
-                    {game.team2result > game.team1result
-                      ? "Verloren"
-                      : "Gewonnen"}
+                    {game.team2result > game.team1result ? "Lost" : "Won"}
                   </p>
                   <p className={classNames("font-bold")}>{game.team1result}</p>{" "}
                 </div>
-                <div></div>
+                <div />
                 <div
                   className={classNames(
                     "flex",
@@ -106,7 +100,7 @@ export const HistoryOverview = () => {
                     className={classNames(
                       "border",
                       "text-white",
-                      "md:w-[120px]",
+                      "md:w-30",
                       "w-fit",
                       "px-2",
                       "md:px-0",
@@ -117,11 +111,9 @@ export const HistoryOverview = () => {
                         : "bg-green-700"
                     )}
                   >
-                    {game.team1result > game.team2result
-                      ? "Verloren"
-                      : "Gewonnen"}
+                    {game.team1result > game.team2result ? "Lost" : "Won"}
                   </p>
-                  <p className={classNames("font-bold")}>{game.team2result}</p>{" "}
+                  <p className={classNames("font-bold")}>{game.team2result}</p>
                 </div>
               </div>
             ))}
@@ -130,3 +122,5 @@ export const HistoryOverview = () => {
     </div>
   );
 };
+
+export default HistoryOverview;

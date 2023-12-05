@@ -1,21 +1,21 @@
 import classNames from "classnames";
+import { FC, useEffect, useRef, useState } from "react";
+import Image from "next/image";
 import Input from "../Forms/InputForms/InputText";
 import Button from "../Buttons/button";
-import authServices from "@/services/auth.services";
-import { useEffect, useRef, useState } from "react";
-import { User, UserUpdateInput } from "@/types/user";
+import { getCurrentUser } from "@/services/auth.services";
+import type { User, UserUpdateInput } from "@/types/user";
 import UserService from "@/services/user.services";
 import uploadService from "@/services/upload.services";
-
-const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || "";
+import { backendUrl } from "@/services/api.services";
+//export default
 
 interface UploadResponse {
   image: string;
 }
 
-export const SettingsOverview = () => {
+const SettingsOverview: FC = () => {
   const [uploadedImage, setUploadedImage] = useState<string | null>(null);
-
   const [currentUser, setCurrentUser] = useState<User>();
   const [formData, setFormData] = useState<UserUpdateInput>({
     firstname: "",
@@ -35,10 +35,9 @@ export const SettingsOverview = () => {
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file && currentUser?.id) {
-      // Check if currentUser.id is defined
       void uploadService.uploadFile(file).then((response: UploadResponse) => {
         setUploadedImage(response.image);
-        setCurrentUser(response as unknown as User); // Ensure that the response is of type User
+        setCurrentUser(response as unknown as User);
       });
     } else {
       console.error("currentUser or currentUser.id is undefined");
@@ -47,7 +46,7 @@ export const SettingsOverview = () => {
 
   useEffect(() => {
     const fetchUser = async () => {
-      const user = await authServices.getCurrentUser();
+      const user = await getCurrentUser();
       if (user) {
         setCurrentUser(user);
 
@@ -72,11 +71,9 @@ export const SettingsOverview = () => {
 
   const handleSave = () => {
     try {
-      // Validate the password first, even if it is not mandatory
       if (!isValidPassword()) return;
 
       if (!currentUser || !currentUser.id) {
-        console.log(currentUser?.id);
         throw new Error("Current user ID not found");
       }
 
@@ -84,27 +81,22 @@ export const SettingsOverview = () => {
         alert("Email addresses do not match. Please check and try again.");
         return;
       }
-      // Exclude confirmPassword and confirmEmail from formData before submitting
-
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { password, confirmPassword, confirmEmail, ...submitData } =
         formData;
       const cleanedSubmitData = password
         ? { password, ...submitData }
         : submitData;
 
-      // Pass both the userId and the cleaned-up formData to updateUserdata
-      console.log(submitData);
       UserService.updateUserdata(currentUser.id, cleanedSubmitData);
 
-      // Optionally, update the current user state or refetch the updated data
       setCurrentUser((prevUser) => {
         if (!prevUser) {
-          // handle error or return prevUser
           return prevUser;
         }
         return { ...prevUser, ...submitData };
       });
-      // Optionally, give feedback to the user about successful update
+
       alert("Profile updated successfully!");
     } catch (error) {
       console.error("Error updating profile:", error);
@@ -112,24 +104,8 @@ export const SettingsOverview = () => {
     }
   };
 
-  // const isValidPassword = () => {
-  //   const { password, confirmPassword } = formData;
-  //   if (!password || password.length < 8) {
-  //     alert("Password must be at least 8 characters long.");
-  //     return false;
-  //   }
-
-  //   if (password !== confirmPassword) {
-  //     alert("Passwords do not match. Please check and try again.");
-  //     return false;
-  //   }
-
-  //   return true;
-  // };
-
   const isValidPassword = () => {
     const { password, confirmPassword } = formData;
-    // Allow empty password
     if (!password && !confirmPassword) return true;
 
     if (password && password.length < 8) {
@@ -179,12 +155,14 @@ export const SettingsOverview = () => {
           )}
         >
           {uploadedImage || currentUser?.image ? (
-            <img
+            <Image
               src={backendUrl + (uploadedImage || currentUser?.image || "")}
               alt="Profile Picture"
+              width={80}
+              height={80}
               className={classNames(
-                "w-[80px]",
-                "h-[80px]",
+                "w-20",
+                "h-20",
                 "rounded-full",
                 "bg-neutral-100"
               )}
@@ -192,12 +170,12 @@ export const SettingsOverview = () => {
           ) : (
             <div
               className={classNames(
-                "w-[80px]",
-                "h-[80px]",
+                "w-20",
+                "h-20",
                 "rounded-full",
                 "bg-neutral-100"
               )}
-            ></div>
+            />
           )}
 
           <div className={classNames("flex", "gap-4")}>
@@ -207,8 +185,6 @@ export const SettingsOverview = () => {
               hidden
               onChange={handleFileChange}
             />
-
-            {/* Upload Button */}
             <Button
               onClick={handleUploadClick}
               className={classNames(
@@ -229,7 +205,7 @@ export const SettingsOverview = () => {
                 "hover:!bg-black",
                 "hover:!text-white"
               )}
-              onClick={(e) => {
+              onClick={() => {
                 if (currentUser) {
                   uploadService
                     .deleteFile(Number(currentUser?.id))
@@ -320,7 +296,7 @@ export const SettingsOverview = () => {
             Password
             <Input
               name="password"
-              type="password" // Mask the password input
+              type="password"
               className={classNames("my-2", "w-full")}
               placeholder="Password"
               value={formData.password}
@@ -330,11 +306,11 @@ export const SettingsOverview = () => {
           <label className={classNames("w-full")}>
             Password Confirmation
             <Input
-              name="confirmPassword" // Change the name here
+              name="confirmPassword"
               type="password"
               className={classNames("my-2", "w-full")}
               placeholder="Confirm Password"
-              value={formData.confirmPassword} // Bind the value here
+              value={formData.confirmPassword}
               onChange={handleChange}
             />
           </label>
@@ -357,3 +333,5 @@ export const SettingsOverview = () => {
     </div>
   );
 };
+
+export default SettingsOverview;

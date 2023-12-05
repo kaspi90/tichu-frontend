@@ -26,6 +26,18 @@ const config = {
         port: "4000",
         pathname: "/public/**",
       },
+      {
+        protocol: "https",
+        hostname: "tichu-counter.onrender.com",
+        port: "",
+        pathname: "/public/**",
+      },
+      {
+        protocol: "http",
+        hostname: "tichu-counter.onrender.com",
+        port: "",
+        pathname: "/public/**",
+      },
     ],
   },
 };

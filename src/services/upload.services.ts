@@ -1,38 +1,36 @@
-import axios from "axios";
-
-const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || ""; // Default to an empty string if undefined
+import { getCookie } from "cookies-next";
+import { backendUrl } from "./api.services";
 
 type UploadResponse = {
   success: boolean;
   message: string;
-  image: string; // or whatever type it should be
-  // ... other properties
+  image: string;
 };
 
 const uploadFile = async (file: File): Promise<UploadResponse> => {
   const formData = new FormData();
   formData.append("image", file);
 
-  const token = localStorage.getItem("token");
+  const token = getCookie("token");
   if (!token) {
     throw new Error("No token found in localStorage");
   }
 
-  const config = {
-    headers: {
-      "Content-Type": "multipart/form-data",
-      Authorization: `Bearer ${token}`,
-    },
-  };
-
   try {
-    const response = await axios.post<UploadResponse>(
-      `${backendUrl}upload`,
-      formData,
-      config
-    );
-    console.log(response.data);
-    return response.data;
+    const response = await fetch(`${backendUrl}upload`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      body: formData,
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const data: UploadResponse = await response.json();
+    return data;
   } catch (error) {
     console.error(error);
     throw error;
@@ -40,24 +38,25 @@ const uploadFile = async (file: File): Promise<UploadResponse> => {
 };
 
 const deleteFile = async (userId: number): Promise<UploadResponse> => {
-  const token = localStorage.getItem("token");
+  const token = getCookie("token");
   if (!token) {
     throw new Error("No token found in localStorage");
   }
 
-  const config = {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  };
-
   try {
-    const response = await axios.delete<UploadResponse>(
-      `${backendUrl}upload/${userId}`,
-      config
-    );
-    console.log(response.data);
-    return response.data;
+    const response = await fetch(`${backendUrl}upload/${userId}`, {
+      method: "DELETE",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const data: UploadResponse = await response.json();
+    return data;
   } catch (error) {
     console.error(error);
     throw error;

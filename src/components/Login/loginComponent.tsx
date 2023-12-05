@@ -1,14 +1,16 @@
 import classNames from "classnames";
+import { useState } from "react";
+import type { ChangeEvent, FC } from "react";
 import Image from "next/image";
+import { useRouter } from "next/router";
 import Input from "../Forms/InputForms/InputText";
 import Button from "../Buttons/button";
-import { ChangeEvent, FC, useState } from "react";
-import { User } from "@/types/user";
-import authServices from "@/services/auth.services";
-import { useRouter } from "next/router";
+import type { User } from "@/types/user";
+import { login } from "@/services/auth.services";
+import { Step } from "@/pages/login";
 
 type LoginProps = {
-  setStep: React.Dispatch<React.SetStateAction<string>>;
+  setStep: React.Dispatch<React.SetStateAction<Step>>;
 };
 
 const LoginComponent: FC<LoginProps> = ({ setStep }) => {
@@ -26,53 +28,8 @@ const LoginComponent: FC<LoginProps> = ({ setStep }) => {
     });
   };
 
-  // const handleLogin = async () => {
-  //   try {
-  //     const response = await authServices.login(
-  //       formState.email,
-  //       formState.password
-  //     );
-  //     if (response.token) {
-  //       void router.push("/dashboard");
-  //     }
-  //   } catch (error) {}
-  // };
-
-  // const handleLogin = async () => {
-  //   try {
-  //     const response = await authServices.login(
-  //       formState.email,
-  //       formState.password
-  //     );
-  //     if (response.token) {
-  //       // Since we're not awaiting this Promise, the ESLint rule should not complain
-  //       router.push("/dashboard");
-  //     }
-  //   } catch (error) {
-  //     console.error("Login error:", error);
-  //     // Handle the error, e.g., show an error message to the user
-  //   }
-  // };
-
-  // const handleLogin = async () => {
-  //   try {
-  //     const response = await authServices.login(
-  //       formState.email,
-  //       formState.password
-  //     );
-  //     if (response.token) {
-  //       // Explicitly ignore the Promise returned by router.push
-  //       void router.push("/dashboard");
-  //     }
-  //   } catch (error) {
-  //     console.error("Login error:", error);
-  //     // Handle the error, e.g., show an error message to the user
-  //   }
-  // };
-
   const handleLogin = () => {
-    authServices
-      .login(formState.email, formState.password)
+    login(formState.email, formState.password)
       .then((response) => {
         if (response.token) {
           void router.push("/dashboard");
@@ -80,7 +37,6 @@ const LoginComponent: FC<LoginProps> = ({ setStep }) => {
       })
       .catch((error) => {
         console.error("Login error:", error);
-        // Handle the error, e.g., show an error message to the user
       });
   };
 
@@ -90,8 +46,8 @@ const LoginComponent: FC<LoginProps> = ({ setStep }) => {
     >
       <div
         className={classNames(
-          "md:w-[500px]",
-          "md:h-[400px]",
+          "md:w-125",
+          "md:h-100",
           "rounded-2xl",
           "shadow-md",
           "px-8",
@@ -111,7 +67,6 @@ const LoginComponent: FC<LoginProps> = ({ setStep }) => {
           <p className={classNames("text-rose-900")}>Tichu Counter</p>
         </div>
         <h2 className={classNames("text-3xl", "mb-2")}>Welcome to Sign In</h2>
-
         <div>
           <p className={classNames("text-xs", "font-medium", "py-2")}>
             E-Mail{" "}
@@ -143,7 +98,7 @@ const LoginComponent: FC<LoginProps> = ({ setStep }) => {
           <p>Don’t have an Account? </p>
           <a
             className={classNames("text-orange-900", "cursor-pointer")}
-            onClick={() => setStep("register")}
+            onClick={() => setStep(Step.Register)}
           >
             Sign Up
           </a>

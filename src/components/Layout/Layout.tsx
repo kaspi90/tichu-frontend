@@ -1,17 +1,10 @@
-import CounterOverview from "@/components/Counter/CounterOverview";
+import classNames from "classnames";
+import type { FC, PropsWithChildren, ReactNode } from "react";
 import NavBar from "@/components/Navigation/NavBar";
 import TopBar from "@/components/Navigation/TopBar";
-import { SettingsOverview } from "@/components/Settings/SettingsOverview";
-import classNames from "classnames";
-import { Router, useRouter } from "next/router";
-import { FC, ReactNode, useState } from "react";
 import NavBarMobile from "../Navigation/NavBarMobile";
 
-interface LayoutProps {
-  children: ReactNode;
-}
-
-const Layout: FC<LayoutProps> = ({ children }) => {
+const Layout: FC<PropsWithChildren> = ({ children }) => {
   return (
     <div className={classNames("bg-gray-400")}>
       <div className={classNames("w-max-[1440px]", "h-fit", "mx-auto")}>

@@ -2,11 +2,15 @@ import classNames from "classnames";
 import { useState } from "react";
 import LoginComponent from "@/components/Login/loginComponent";
 import SignUpComponent from "@/components/Login/signUpComponent";
-import Layout from "@/components/Layout/Layout";
-import withAuth from "@/utils/withAuth";
+import { NextPage } from "next";
 
-const Login = () => {
-  const [step, setStep] = useState<string>("login");
+export enum Step {
+  Login = "login",
+  Register = "register",
+}
+
+const Login: NextPage = () => {
+  const [step, setStep] = useState<Step>(Step.Login);
 
   return (
     <div className={classNames("bg-red-900")}>
@@ -15,13 +19,13 @@ const Login = () => {
           "w-max-[1440px]",
           "h-screen",
           "mx-auto",
-          " backdrop-blur-sm",
+          "backdrop-blur-sm",
           "bg-white/90"
         )}
       >
-        {step === "login" ? (
+        {step === Step.Login ? (
           <LoginComponent setStep={setStep} />
-        ) : step === "register" ? (
+        ) : step === Step.Register ? (
           <SignUpComponent setStep={setStep} />
         ) : null}
       </div>

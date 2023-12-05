@@ -1,11 +1,11 @@
 import classNames from "classnames";
-import { ChangeEventHandler, FC } from "react";
+import type { ChangeEventHandler, FC } from "react";
 
-interface InputNumberProps {
-  value?: string;
+type InputNumberProps = {
+  value?: number;
   onChange: ChangeEventHandler<HTMLInputElement>;
   className?: string;
-}
+};
 
 const InputNumber: FC<InputNumberProps> = ({ value, onChange }) => {
   return (

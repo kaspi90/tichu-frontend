@@ -1,11 +1,11 @@
 import classNames from "classnames";
-import { ChangeEventHandler, FC } from "react";
+import type { ChangeEventHandler, FC } from "react";
 
-interface InputTeamProps {
+type InputTeamProps = {
   value?: string;
   onChange: ChangeEventHandler<HTMLInputElement>;
   className?: string;
-}
+};
 
 const InputTeam: FC<InputTeamProps> = ({ value, onChange, className }) => {
   return (

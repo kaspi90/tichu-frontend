@@ -1,15 +1,14 @@
-import React, { ChangeEvent, useEffect, useState } from "react";
-
 import classNames from "classnames";
+import React, { useEffect, useState } from "react";
+import type { ChangeEvent, FC } from "react";
 import InputTeam from "../Forms/InputForms/InputTeam";
 import InputNumber from "../Forms/InputForms/InputNumber";
-import InputCheckbox from "../Forms/InputForms/InputCheckbox";
+import InputCheckbox from "../Forms/InputForms/InputSwitch";
 import { calculatePoints } from "@/utils/calcPoints";
-import { Game } from "@/types/game";
-import authServices from "@/services/auth.services";
+import type { Game } from "@/types/game";
+import { getCurrentUser } from "@/services/auth.services";
 import Toast from "../Toast/Toast";
-
-export const CounterOverview = () => {
+const CounterOverview: FC = () => {
   type ToggleName =
     | "successful-tichu-1"
     | "successful-tichu-2"
@@ -24,10 +23,10 @@ export const CounterOverview = () => {
 
   const [team1, setTeam1] = useState<string>("Team 1");
   const [team2, setTeam2] = useState<string>("Team 2");
-  const [pointsTeam1, setPointsTeam1] = useState<string | number>("");
-  const [pointsTeam2, setPointsTeam2] = useState<string | number>("");
-  const [pointsSumTeam1, setPointsSumTeam1] = useState<string | number>(0);
-  const [pointsSumTeam2, setPointsSumTeam2] = useState<string | number>(0);
+  const [pointsTeam1, setPointsTeam1] = useState<number>(0);
+  const [pointsTeam2, setPointsTeam2] = useState<number>(0);
+  const [pointsSumTeam1, setPointsSumTeam1] = useState<number>(0);
+  const [pointsSumTeam2, setPointsSumTeam2] = useState<number>(0);
   const [failedTichu1, setfailedTichu1] = useState<boolean>(false);
   const [failedTichu2, setfailedTichu2] = useState<boolean>(false);
   const [failedGrandTichu3, setfailedGrandTichu3] = useState<boolean>(false);
@@ -35,57 +34,58 @@ export const CounterOverview = () => {
   const [game, setGame] = useState<Game>();
   const [toastMessage, setToastMessage] = useState<string>("");
   const [toastType, setToastType] = useState<"error" | "success">("error");
+  const [activeDoubleWinToggle, setActiveDoubleWinToggle] =
+    useState<ToggleDoublewin | null>(null);
+  const [activeToggle, setActiveToggle] = useState<ToggleName | null>(null);
 
   const showToast = (message: string, type: "error" | "success") => {
     setToastMessage(message);
-    setToastType("success");
+    setToastType(type);
   };
 
   const closeToast = () => {
     setToastMessage("");
   };
 
+  const resetToggles = () => {
+    setActiveToggle(null);
+    setActiveDoubleWinToggle(null);
+    setfailedTichu1(false);
+    setfailedTichu2(false);
+    setfailedGrandTichu3(false);
+    setfailedGrandTichu4(false);
+  };
+
   useEffect(() => {
     const fetchCurrentUserAndSetGame = async () => {
-      if (Number(pointsSumTeam1) >= 1000 || Number(pointsSumTeam2) >= 1000) {
-        const user = await authServices.getCurrentUser();
+      if (pointsSumTeam1 >= 1000 || pointsSumTeam2 >= 1000) {
+        const user = await getCurrentUser();
         if (user?.id) {
           setGame({
             team1: team1,
             team2: team2,
             userId: user.id,
-            team1result: Number(pointsSumTeam1),
-            team2result: Number(pointsSumTeam2),
+            team1result: pointsSumTeam1,
+            team2result: pointsSumTeam2,
           });
 
-          if (Number(pointsSumTeam1) > Number(pointsSumTeam2)) {
-            showToast("Glückwunsch " + team1, "success");
+          if (pointsSumTeam1 > pointsSumTeam2) {
+            showToast("Congratulations " + team1, "success");
           } else {
-            showToast("Glückwunsch " + team2, "success");
+            showToast("Congratulations " + team2, "success");
           }
         }
       }
     };
 
     void fetchCurrentUserAndSetGame();
-  }, [pointsSumTeam1, pointsSumTeam2]);
-
-  const [activeDoubleWinToggle, setActiveDoubleWinToggle] =
-    useState<ToggleDoublewin | null>(null);
-
-  const [activeToggle, setActiveToggle] = useState<ToggleName | null>(null);
+  }, [pointsSumTeam1, pointsSumTeam2, team1, team2]);
 
   const handleToggleChange = (name: ToggleName) => {
     setActiveToggle(activeToggle === name ? null : name);
   };
 
   const handleTeam1Change = (e: ChangeEvent<HTMLInputElement>) => {
-    if (e.target.value === "") {
-      setPointsTeam1("");
-      setPointsTeam2("");
-      return;
-    }
-
     const value = parseInt(e.target.value, 10);
     if (!isNaN(value) && value >= -25 && value <= 125) {
       setPointsTeam1(value);
@@ -94,12 +94,6 @@ export const CounterOverview = () => {
   };
 
   const handleTeam2Change = (e: ChangeEvent<HTMLInputElement>) => {
-    if (e.target.value === "") {
-      setPointsTeam2("");
-      setPointsTeam1("");
-      return;
-    }
-
     const value = parseInt(e.target.value, 10);
     if (!isNaN(value) && value >= -25 && value <= 125) {
       setPointsTeam2(value);
@@ -130,12 +124,11 @@ export const CounterOverview = () => {
         pointsSumTeam2={pointsSumTeam2}
         setPointsSumTeam1={setPointsSumTeam1}
         setPointsSumTeam2={setPointsSumTeam2}
+        onResetToggles={resetToggles}
       />
-
       <div
         className={classNames(
           "backdrop-blur-sm",
-
           "bg-red-900/10",
           "border-white",
           "border-8",
@@ -181,11 +174,10 @@ export const CounterOverview = () => {
               className={classNames("w-fit")}
             />
             <InputNumber
-              value={pointsTeam1.toString()}
+              value={pointsTeam1}
               onChange={handleTeam1Change}
               className={classNames("w-fit")}
             />
-
             <p className={classNames("text-2xl", "my-2")}>{pointsSumTeam1}</p>
           </div>
           <div>
@@ -200,15 +192,14 @@ export const CounterOverview = () => {
               className={classNames("w-fit")}
             />
             <InputNumber
-              value={pointsTeam2.toString()}
+              value={pointsTeam2}
               onChange={handleTeam2Change}
               className={classNames("w-fit")}
             />
-
             <p className={classNames("text-2xl", "my-2")}>{pointsSumTeam2}</p>
           </div>
         </div>
-        <div className={classNames("my-4 grid grid-cols-3 gap-4")}>
+        <div className={classNames("my-4", "grid", "grid-cols-3", "gap-4")}>
           <InputCheckbox
             checked={activeToggle === "successful-tichu-1"}
             onChange={() => handleToggleChange("successful-tichu-1")}
@@ -216,7 +207,6 @@ export const CounterOverview = () => {
               activeToggle !== null && activeToggle !== "successful-tichu-1"
             }
           />
-
           <div>
             <p className={classNames("text-lg", "font-bold")}>
               Successful Tichu
@@ -230,12 +220,11 @@ export const CounterOverview = () => {
             }
           />
         </div>
-        <div className={classNames("my-4  grid grid-cols-3 gap-4")}>
+        <div className={classNames("my-4", "grid", "grid-cols-3", "gap-4")}>
           <InputCheckbox
             checked={failedTichu1}
             onChange={() => setfailedTichu1(!failedTichu1)}
           />
-
           <div>
             <p className={classNames("text-lg", "font-bold")}>Failed Tichu</p>
           </div>
@@ -244,7 +233,7 @@ export const CounterOverview = () => {
             onChange={() => setfailedTichu2(!failedTichu2)}
           />
         </div>
-        <div className={classNames("my-4  grid grid-cols-3 gap-4")}>
+        <div className={classNames("my-4", "grid", "grid-cols-3", "gap-4")}>
           <InputCheckbox
             checked={activeToggle === "successful-grand-tichu-1"}
             onChange={() => handleToggleChange("successful-grand-tichu-1")}
@@ -267,7 +256,7 @@ export const CounterOverview = () => {
             }
           />
         </div>
-        <div className={classNames("my-4 grid grid-cols-3 gap-4")}>
+        <div className={classNames("my-4", "grid", "grid-cols-3", "gap-4")}>
           <InputCheckbox
             checked={failedGrandTichu3}
             onChange={() => setfailedGrandTichu3(!failedGrandTichu3)}
@@ -282,7 +271,7 @@ export const CounterOverview = () => {
             onChange={() => setfailedGrandTichu4(!failedGrandTichu4)}
           />
         </div>
-        <div className={classNames("my-4 grid grid-cols-3 gap-4")}>
+        <div className={classNames("my-4", "grid", "grid-cols-3", "gap-4")}>
           <InputCheckbox
             onChange={() => handleDoubleWinToggleChange("double-win-1")}
             disabled={
@@ -290,11 +279,9 @@ export const CounterOverview = () => {
               activeDoubleWinToggle !== "double-win-1"
             }
           />
-
           <div>
             <p className={classNames("text-lg", "font-bold")}>Double Win</p>
           </div>
-
           <InputCheckbox
             onChange={() => handleDoubleWinToggleChange("double-win-2")}
             disabled={
@@ -303,9 +290,8 @@ export const CounterOverview = () => {
             }
           />
         </div>
-        <div className={classNames("my-4 grid grid-cols-3 gap-4")}>
-          <div></div>
-
+        <div className={classNames("my-4", "grid", "grid-cols-3", "gap-4")}>
+          <div />
           <div>
             <button
               onClick={() =>
@@ -338,7 +324,7 @@ export const CounterOverview = () => {
               Calculate
             </button>
           </div>
-          <div></div>
+          <div />
         </div>
       </div>
     </div>

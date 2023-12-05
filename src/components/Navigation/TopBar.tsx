@@ -1,47 +1,29 @@
-import React, { useEffect, useState } from "react";
-import Image from "next/image";
-import Link from "next/link";
 import classNames from "classnames";
-import { FiChevronDown } from "react-icons/fi";
-import { User, UserUpdateInput } from "@/types/user";
-import authServices from "@/services/auth.services";
+import React, { FC, useEffect, useState } from "react";
+import Image from "next/image";
+import type { User } from "@/types/user";
+import { getCurrentUser } from "@/services/auth.services";
+import { backendUrl } from "@/services/api.services";
 
-const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || "";
-
-export const TopBar = () => {
+const TopBar: FC = () => {
   const [currentUser, setCurrentUser] = useState<User>();
-  const [formData, setFormData] = useState<UserUpdateInput>({
-    firstname: "",
-    lastname: "",
-    email: "",
-    confirmEmail: "",
-    confirmPassword: "",
-    password: "", // You might not want to prefill password for security reasons.
-  });
+
   useEffect(() => {
     const fetchUser = async () => {
-      const user = await authServices.getCurrentUser();
+      const user = await getCurrentUser();
       if (user) {
         setCurrentUser(user);
-
-        setFormData({
-          firstname: user.firstname || "",
-          lastname: user.lastname || "",
-          email: user.email || "",
-          confirmEmail: user.email || "",
-          password: "",
-          confirmPassword: "",
-        });
       }
     };
 
     void fetchUser();
   }, []);
+
   return (
     <div
       className={classNames(
         "bg-white",
-        "h-[70px]",
+        "h-17.5",
         "w-full",
         "justify-end",
         "flex",
@@ -52,25 +34,27 @@ export const TopBar = () => {
     >
       <div>
         {currentUser?.image ? (
-          <img
+          <Image
             src={backendUrl + currentUser?.image}
             alt="Profile Picture"
             className={classNames(
               "rounded-full",
-              "w-[36px]",
-              "h-[36px]",
-              "bg-neutral-100"
+              "bg-neutral-100",
+              "h-9",
+              "w-9"
             )}
+            height={36}
+            width={36}
           />
         ) : (
           <div
             className={classNames(
               "rounded-full",
-              "w-[36px]",
-              "h-[36px]",
+              "w-9",
+              "h-9",
               "bg-neutral-100"
             )}
-          ></div>
+          />
         )}
       </div>
       <span className={classNames("flex", "items-center", "pr-10", "gap-1")}>

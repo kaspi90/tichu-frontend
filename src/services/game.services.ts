@@ -1,36 +1,61 @@
-// services/gameService.ts
-import { Game, GameResult } from "@/types/game";
-import axios from "axios";
+import { getCookie } from "cookies-next";
+import type { Game, GameResult } from "@/types/game";
+import { backendUrl } from "./api.services";
 
-const backendUrl =
-  process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:4000";
+const API_BASE_URL = backendUrl + "games";
 
-const API_BASE_URL = backendUrl + "games"; // Assuming your NestJS API is running on this URL
+export const createGame = async (game: Game): Promise<GameResult> => {
+  const response = await fetch(API_BASE_URL, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(game),
+  });
 
-export const createGame = async (game: Game) => {
-  return await axios.post(API_BASE_URL, game);
+  if (!response.ok) {
+    throw new Error(`HTTP error! status: ${response.status}`);
+  }
+
+  return response.json() as Promise<GameResult>;
 };
+
 export const getAllGames = async (): Promise<GameResult[]> => {
-  const response = await axios.get<GameResult[]>(API_BASE_URL);
-  return response.data;
+  const response = await fetch(API_BASE_URL);
+
+  if (!response.ok) {
+    throw new Error(`HTTP error! status: ${response.status}`);
+  }
+
+  return response.json() as Promise<GameResult[]>;
 };
 
-export const getGameById = async (id: number) => {
-  return await axios.get(`${API_BASE_URL}/${id}`);
+export const getGameById = async (id: number): Promise<GameResult> => {
+  const response = await fetch(`${API_BASE_URL}/${id}`);
+
+  if (!response.ok) {
+    throw new Error(`HTTP error! status: ${response.status}`);
+  }
+
+  return response.json() as Promise<GameResult>;
 };
 
 export const getMyGames = async (): Promise<GameResult[]> => {
-  const token = localStorage.getItem("token");
-  const config = {
+  const token = getCookie("token");
+
+  const response = await fetch(`${API_BASE_URL}/my-games`, {
+    method: "GET",
     headers: {
       Authorization: `Bearer ${token ? token : "default-token"}`,
+      "Content-Type": "application/json",
     },
-  };
+  });
 
-  const response = await axios.get<GameResult[]>(
-    `${API_BASE_URL}/my-games`,
-    config
-  );
-  console.log(response);
-  return response.data;
+  if (!response.ok) {
+    console.error("Failed to fetch my games:", response.status);
+    throw new Error(`HTTP error! status: ${response.status}`);
+  }
+
+  const data = (await response.json()) as GameResult[];
+  return data;
 };

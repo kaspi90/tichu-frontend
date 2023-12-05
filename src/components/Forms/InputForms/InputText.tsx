@@ -18,8 +18,8 @@ const Input: FC<InputProps> = ({
       {...props}
       className={classNames(
         className,
-        "h-[43px]",
-        "w-[440px]",
+        "h-10.5",
+        "w-110",
         "p-3",
         "border-zinc-300",
         "rounded",

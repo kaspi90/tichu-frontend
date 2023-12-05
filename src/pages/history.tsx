@@ -1,12 +1,12 @@
-import CounterOverview from "@/components/Counter/CounterOverview";
-import { HistoryOverview } from "@/components/History/History";
+import HistoryOverview from "@/components/History/History";
 import Layout from "@/components/Layout/Layout";
 import withAuth from "@/utils/withAuth";
+import { NextPage } from "next";
 
-const History = () => {
+const History: NextPage = () => {
   return (
     <Layout>
-      <HistoryOverview />{" "}
+      <HistoryOverview />
     </Layout>
   );
 };

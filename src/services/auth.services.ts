@@ -1,67 +1,62 @@
-import axios, { AxiosResponse } from "axios";
-import { LoginResponse, User } from "@/types/user";
+import { setCookie } from "cookies-next";
+import { deleteCookie } from "cookies-next";
+import { getCookie } from "cookies-next";
+import type { LoginResponse, User } from "@/types/user";
+import { backendUrl } from "./api.services";
 
-const backendUrl =
-  process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:4000/";
-
-const login = async (
+export const login = async (
   email: string,
   password: string
 ): Promise<LoginResponse> => {
-  try {
-    const url = `${String(backendUrl)}auth/login`; // Convert backendUrl to string to satisfy TypeScript
-    const response: AxiosResponse<LoginResponse> = await axios.post(url, {
-      email,
-      password,
-    });
+  const url = `${backendUrl}auth/login`;
 
-    if (response.data.token) {
-      localStorage.setItem("token", response.data.token);
-    } else {
-      console.error("Token not found in response");
-    }
+  const response = await fetch(url, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ email, password }),
+  });
 
-    return response.data;
-  } catch (error) {
-    console.error("Login error:", error);
-    throw error;
+  if (!response.ok) {
+    throw new Error(`HTTP error! status: ${response.status}`);
   }
+
+  const data: LoginResponse = await response.json();
+
+  if (data.token) {
+    setCookie("key", data.token);
+  } else {
+    console.error("Token not found in response");
+  }
+
+  return data;
 };
 
-const logout = (): Promise<boolean> => {
-  try {
-    localStorage.removeItem("token");
-    return Promise.resolve(true);
-  } catch (error) {
-    console.error("Logout failed:", error);
-    return Promise.resolve(false);
-  }
+export const logout = (): void => {
+  deleteCookie("token");
 };
 
-const getCurrentUser = async (): Promise<User | null> => {
-  const token = localStorage.getItem("token");
+export const getCurrentUser = async (): Promise<User | null> => {
+  const token = getCookie("token");
 
   if (!token) {
     return null;
   }
 
-  try {
-    const url = `${String(backendUrl)}users/me`; // Convert backendUrl to string to satisfy TypeScript
-    const response: AxiosResponse<User> = await axios.get(url, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
+  const url = `${backendUrl}users/me`;
+  const response = await fetch(url, {
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+  });
 
-    return response.data;
-  } catch (err) {
-    console.error("Error fetching user data", err);
+  if (!response.ok) {
+    console.error("Error fetching user data", response.statusText);
     return null;
   }
-};
 
-export default {
-  login,
-  logout,
-  getCurrentUser,
+  const data: User = await response.json();
+  return data;
 };

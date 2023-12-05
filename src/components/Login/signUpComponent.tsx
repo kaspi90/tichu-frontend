@@ -1,13 +1,15 @@
 import classNames from "classnames";
+import type { ChangeEvent, FC } from "react";
+import { useState } from "react";
 import Image from "next/image";
 import Input from "../Forms/InputForms/InputText";
 import Button from "../Buttons/button";
-import { ChangeEvent, FC, useState } from "react";
 import UserService from "@/services/user.services";
-import { User } from "@/types/user";
+import type { User } from "@/types/user";
+import { Step } from "@/pages/login";
 
 type SignUpProps = {
-  setStep: React.Dispatch<React.SetStateAction<string>>;
+  setStep: React.Dispatch<React.SetStateAction<Step>>;
 };
 
 const SignUpComponent: FC<SignUpProps> = ({ setStep }) => {
@@ -27,12 +29,9 @@ const SignUpComponent: FC<SignUpProps> = ({ setStep }) => {
 
   const handleRegister = () => {
     if (formState.password !== confirmPassword && confirmPassword !== "") {
-      console.log("test");
-      setErrorMessage("Password and Confirm Password do not match");
     } else {
-      console.log("testi");
       UserService.register(formState);
-      setStep("login");
+      setStep(Step.Login);
     }
   };
 
@@ -42,8 +41,8 @@ const SignUpComponent: FC<SignUpProps> = ({ setStep }) => {
     >
       <div
         className={classNames(
-          "md:w-[500px]",
-          "md:h-[500px]",
+          "md:w-125",
+          "md:h-125",
           "rounded-2xl",
           "shadow-md",
           "px-8",
@@ -63,7 +62,6 @@ const SignUpComponent: FC<SignUpProps> = ({ setStep }) => {
           <p className={classNames("text-rose-900")}>Tichu Counter</p>
         </div>
         <h2 className={classNames("text-3xl", "mb-2")}>Welcome to Sign Up</h2>
-
         <div>
           <p className={classNames("text-xs", "font-medium", "py-2")}>E-Mail</p>
           <Input
@@ -97,7 +95,6 @@ const SignUpComponent: FC<SignUpProps> = ({ setStep }) => {
             className={classNames("w-full")}
           />
         </div>
-
         <Button className={classNames("mb-7")} onClick={() => handleRegister()}>
           Register
         </Button>
@@ -105,7 +102,7 @@ const SignUpComponent: FC<SignUpProps> = ({ setStep }) => {
           <p>Already have an account? </p>
           <a
             className={classNames("text-orange-900", "cursor-pointer")}
-            onClick={() => setStep("login")}
+            onClick={() => setStep(Step.Login)}
           >
             Login
           </a>
@@ -116,6 +113,3 @@ const SignUpComponent: FC<SignUpProps> = ({ setStep }) => {
 };
 
 export default SignUpComponent;
-function setErrorMessage(arg0: string) {
-  throw new Error("Function not implemented.");
-}

@@ -1,27 +1,20 @@
-// hoc/withAuth.tsx
 import React, { useEffect } from "react";
 import { useRouter } from "next/router";
-import authServices from "@/services/auth.services";
+import { getCurrentUser } from "@/services/auth.services";
 
-type WrappedComponentType = React.ComponentType<any>;
+type WithAuthProps<P> = P & {};
 
-const withAuth = (WrappedComponent: WrappedComponentType) => {
-  const WithAuthComponent: React.FC<any> = (props) => {
+const withAuth = <P extends object>(
+  WrappedComponent: React.ComponentType<P>
+) => {
+  const WithAuthComponent: React.FC<WithAuthProps<P>> = (props) => {
     const Router = useRouter();
-
-    // useEffect(() => {
-    //   const token = authServices.getCurrentUser();
-
-    //   if (!token) {
-    //     Router.replace("/login"); // or wherever your login page is
-    //   }
-    // }, []);
 
     useEffect(() => {
       let isMounted = true;
 
       const loadUser = async () => {
-        const token = await authServices.getCurrentUser();
+        const token = await getCurrentUser();
 
         if (isMounted && !token) {
           try {
